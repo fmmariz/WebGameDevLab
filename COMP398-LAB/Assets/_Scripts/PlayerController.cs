@@ -26,6 +26,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] LayerMask _groundMask;
     [SerializeField] bool _isGrounded;
 
+    [Header("Respawn")]
+    [SerializeField] Transform _respawnPosition;
+
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
@@ -50,6 +53,7 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         _isGrounded = Physics.CheckSphere(_groundCheck.position, _groundRadius, _groundMask);
+        Debug.Log(_isGrounded);
         if(_isGrounded && _velocity.y < 0.0f)
         {
             _velocity.y = -2.0f;
@@ -64,20 +68,22 @@ public class PlayerController : MonoBehaviour
     {
         if (_isGrounded)
         {
+            Debug.Log("Aie");
             _velocity.y = Mathf.Sqrt(_jumpHeight * -2.0f * _gravity);
         }
     }
 
+    private void OnEnable() => _inputs.Enable();
 
+    private void OnDisable() => _inputs.Disable();
 
-    void Start()
+    private void OnTriggerEnter(Collider other)
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        if (other.CompareTag("Death"))
+        {
+            _controller.enabled = false;
+            transform.position = _respawnPosition.transform.position;
+            _controller.enabled = true;
+        }
     }
 }
