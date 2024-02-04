@@ -53,7 +53,6 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         _isGrounded = Physics.CheckSphere(_groundCheck.position, _groundRadius, _groundMask);
-        Debug.Log(_isGrounded);
         if(_isGrounded && _velocity.y < 0.0f)
         {
             _velocity.y = -2.0f;
