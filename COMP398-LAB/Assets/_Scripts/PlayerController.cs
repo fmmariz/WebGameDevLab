@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : Subject<PlayerEnums>
 {
     // Start is called before the first frame update
     COMP398LAB _inputs;
@@ -59,6 +59,7 @@ public class PlayerController : MonoBehaviour
         }
         Vector3 movement = new Vector3(_move.x, 0, _move.y) * _speed * Time.deltaTime;
         _controller.Move(movement);
+        if (!_controller.enabled) { return; }
         _velocity.y += _gravity * Time.fixedDeltaTime;
         _controller.Move(_velocity * Time.fixedDeltaTime);
     }
@@ -67,8 +68,8 @@ public class PlayerController : MonoBehaviour
     {
         if (_isGrounded)
         {
-            Debug.Log("Aie");
             _velocity.y = Mathf.Sqrt(_jumpHeight * -2.0f * _gravity);
+            NotifyObservers(PlayerEnums.JUMPING);
         }
     }
 
@@ -83,6 +84,7 @@ public class PlayerController : MonoBehaviour
             _controller.enabled = false;
             transform.position = _respawnPosition.transform.position;
             _controller.enabled = true;
+            NotifyObservers(PlayerEnums.DAMAGED);
         }
     }
 }
