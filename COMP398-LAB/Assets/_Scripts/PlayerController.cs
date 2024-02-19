@@ -6,11 +6,17 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : Subject<PlayerEnums>
 {
+
+    #region Private Fields
     // Start is called before the first frame update
     COMP398LAB _inputs;
 
     Vector2 _move;
+    Camera _camera;
+    Vector3 _camForward, _camRight;
+    #endregion
 
+    #region Serializable Fields
     [Header("Character Controller")]
     [SerializeField] CharacterController _controller;
 
@@ -28,9 +34,10 @@ public class PlayerController : Subject<PlayerEnums>
 
     [Header("Respawn")]
     [SerializeField] Transform _respawnPosition;
-
+    #endregion
     private void Awake()
     {
+        _camera = Camera.main;
         _controller = GetComponent<CharacterController>();
         _inputs = new COMP398LAB();
         _inputs.Enable();
@@ -57,7 +64,14 @@ public class PlayerController : Subject<PlayerEnums>
         {
             _velocity.y = -2.0f;
         }
-        Vector3 movement = new Vector3(_move.x, 0, _move.y) * _speed * Time.deltaTime;
+
+        _camForward = _camera.transform.forward;
+        _camRight = _camera.transform.right;
+        _camForward.y = 0;
+        _camRight.y = 0;
+        _camForward.Normalize();
+        _camRight.Normalize();
+        Vector3 movement = (_camRight * _move.x + _camForward * _move.y) * _speed * Time.deltaTime;
         _controller.Move(movement);
         if (!_controller.enabled) { return; }
         _velocity.y += _gravity * Time.fixedDeltaTime;
