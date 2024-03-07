@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class SceneController : PersistentSingleton<SceneController>
 {
@@ -15,4 +16,6 @@ public class SceneController : PersistentSingleton<SceneController>
     {
         SceneManager.LoadScene(scene);
     }
+
+  
 }

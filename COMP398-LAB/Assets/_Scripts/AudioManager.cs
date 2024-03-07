@@ -3,50 +3,57 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[Serializable]
-public class AudioData
-{
-    public String audioName;
-    public AudioClip audioClip;
-}
-
+/// <summary>
+/// Audio Manager is scene dependent. which means it will control the audio
+/// for a specific scene
+/// </summary>
 public class AudioManager : MonoBehaviour, IObserver<PlayerEnums>
 {
     [SerializeField] private Subject<PlayerEnums> _playerSubject;
-    [SerializeField] private List<AudioData> audios =
-        new List<AudioData>();
-    [SerializeField] private AudioSource _sfxPlayer;
+    [SerializeField] private string _musicName;
+    [SerializeField]
+    private List<AudioAsset> audios =
+    new List<AudioAsset>();
 
     void Awake()
     {
-        _playerSubject = GameObject.FindGameObjectWithTag("Player").GetComponent<Subject<PlayerEnums>>();
-
+        var player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            _playerSubject = player.GetComponent<Subject<PlayerEnums>>();
+        }
     }
+
+    void Start()
+    {
+        var musicAsset = audios.Find(a => a.name == _musicName);
+        AudioController.Instance.PlayMusic(musicAsset);
+    }
+
     public void OnNotify(PlayerEnums enums)
     {
+        AudioAsset asset = null;
         switch (enums)
         {
             case PlayerEnums.DAMAGED:
-                _sfxPlayer.clip =
-                    audios.Find(s => s.audioName == "Damaged").audioClip;
-                _sfxPlayer.Play();
-
+                asset = audios.Find(s => s.AudioName == "Death");
                 break;
             case PlayerEnums.JUMPING:
-                _sfxPlayer.clip = 
-                    audios.Find(s => s.audioName == "Jump").audioClip;
-                _sfxPlayer.Play();
+                asset = audios.Find(s => s.AudioName == "Jump");
                 break;
         }
+        AudioController.Instance.PlaySfx(asset);
     }
 
     private void OnEnable()
     {
+        if (_playerSubject == null) return;
         _playerSubject.AddObserver(this);
     }
 
     private void OnDisable()
     {
+        if (_playerSubject == null) return;
         _playerSubject.RemoveObserver(this);
     }
 }
