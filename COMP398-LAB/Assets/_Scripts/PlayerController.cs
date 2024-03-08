@@ -19,6 +19,8 @@ public class PlayerController : Subject<PlayerEnums>
     #region Serializable Fields
     [Header("Character Controller")]
     [SerializeField] CharacterController _controller;
+    [Header("Joystick")]
+    [SerializeField] Joystick _joystick;
 
     [Header("Movements")]
     [SerializeField] float _speed;
@@ -64,6 +66,7 @@ public class PlayerController : Subject<PlayerEnums>
         {
             _velocity.y = -2.0f;
         }
+        _move = _joystick.Direction;
 
         _camForward = _camera.transform.forward;
         _camRight = _camera.transform.right;
