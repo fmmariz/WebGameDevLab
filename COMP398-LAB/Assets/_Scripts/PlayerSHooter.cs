@@ -24,7 +24,7 @@ public class PlayerSHooter : MonoBehaviour
         _inputs = new COMP398LAB();
         //_inputs.Player.Fire.performed += _ => ShootProjectile();
         _inputs.Player.Camera.performed += context => ChangeProjectileSpawn(context.ReadValue<float>());
-        _shootProjectileBtn.onClick.AddListener(() => ShootProjectile());
+        _shootProjectileBtn.onClick.AddListener(() => ShootPooledProjectile());
         _turnProjectileSpawnRight.onClick.AddListener(() => ChangeProjectileSpawn(-1));
         _turnProjectileSpawnLeft.onClick.AddListener(() => ChangeProjectileSpawn(1));
     }
@@ -40,12 +40,30 @@ public class PlayerSHooter : MonoBehaviour
             .AddForce(projectile.transform.forward * _projectileForce, ForceMode.Impulse);
     }
 
+    private void ShootPooledProjectile()
+    {
+        var projectile = ProjectilePoolManager.Instance.Get();
+        projectile.transform.SetPositionAndRotation(_currentProjectileSpawn.position, _currentProjectileSpawn.rotation);
+        projectile.gameObject.SetActive(true);
+        projectile.GetComponent<Rigidbody>()
+           .AddForce(projectile.transform.forward * _projectileForce, ForceMode.Impulse);
+    }
+
     private void ChangeProjectileSpawn(float direction)
     {
-        _index += (int) direction;
+        _index -= (int) direction;
         if (_index < 0) _index = _projectileSpawn.Count - 1;
         if (_index > _projectileSpawn.Count - 1) _index = 0;
         _currentProjectileSpawn = _projectileSpawn[_index];
+    }
+
+    private void FixedUpdate()
+    {
+        if (_inputs.Player.Fire.IsPressed())
+        {
+            ShootPooledProjectile();
+
+        }
     }
 
     private void OnEnable()

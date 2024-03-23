@@ -1,6 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+
+[System.Serializable]
+public class SerializableFactory
+{
+    public string FactoryName;
+    public AbstractLocationFactory Factory;
+}
 
 public class RandomGen : MonoBehaviour
 {
@@ -14,6 +22,8 @@ public class RandomGen : MonoBehaviour
     [SerializeField] private List<Material> _Materials;
 
     private GameObject[,] _map;
+    [SerializeField] private Dictionary<string,AbstractLocationFactory> _locFactories = 
+        new Dictionary<string, AbstractLocationFactory>();
 
     private float _oldOffsetX;
     private float _oldOffsetY;
@@ -25,6 +35,8 @@ public class RandomGen : MonoBehaviour
         _offsetX = Random.Range(-100, 100);
         _offsetX = Random.Range(-100, 100);
         _map = new GameObject[_width, _depth];
+        _locFactories["Grass"] = new FactoryGrass();
+
         GenerateMap();
     }
 
@@ -135,6 +147,7 @@ public class RandomGen : MonoBehaviour
                     break;
             case <= 0.60f:
                 material = _Materials[2];
+                _locFactories["Grass"].CreateLocation();
                 break;
             case <= 0.80f:
                 material = _Materials[3];
