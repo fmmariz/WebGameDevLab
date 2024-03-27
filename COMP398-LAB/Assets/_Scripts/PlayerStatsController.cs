@@ -5,21 +5,21 @@ using UnityEngine.SceneManagement;
 
 public class PlayerStatsController : MonoBehaviour, IObserver<PlayerEnums>
 {
-    [SerializeField] private Subject<PlayerEnums> _playerSubject;
+    [SerializeField] private PlayerController _playerController;
     [SerializeField] private int _playerHealth = 3; 
 
 
     void Awake()
     {
-        _playerSubject = GameObject.FindGameObjectWithTag("Player")
-            .GetComponent<Subject<PlayerEnums>>();
+        _playerController = GameObject.FindGameObjectWithTag("Player")
+            .GetComponent<PlayerController>();
 
     }
 
-    void OnEnable() => _playerSubject.AddObserver(this);
+    void OnEnable() => _playerController.AddObserver(this);
     
 
-    void OnDisable() => _playerSubject.RemoveObserver(this);
+    void OnDisable() => _playerController.RemoveObserver(this);
     
 
     public void OnNotify(PlayerEnums playerEnums)
@@ -50,7 +50,15 @@ public class PlayerStatsController : MonoBehaviour, IObserver<PlayerEnums>
 
     public void SaveGameIntoFile()
     {
-        SaveGameManager.Instance().SaveGame(_playerSubject.transform);
+        SaveGameManager.Instance().SaveGame(_playerController.transform);
+
+    }
+
+    public void LoadGameFromFile()
+    {
+        var playerData = SaveGameManager.Instance().LoadGame();
+        var position = playerData.position;
+        _playerController.transform.position = JsonUtility.FromJson<Vector3>(position);
 
     }
 }
